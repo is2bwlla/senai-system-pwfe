@@ -1,0 +1,33 @@
+.container-head{
+    background-color: black;
+    color: white;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px;
+    width: 100%;
+    max-width: 1000px;
+    height: 80px;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%);
+    margin: 0;
+    display: flex;
+    position: fixed;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px black;
+    align-items: center;
+}
+
+.nav{
+    display: flex;
+    width: 300px;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 50px;
+}
+
+.title{
+    display: flex;
+    width: 20px;
+    padding-left: 50px;
+}

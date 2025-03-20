@@ -1,0 +1,45 @@
+.container_login{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    /* background-color: rgb(243, 238, 233); */
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 50%;
+}
+
+.caixa{
+    margin-top: 0px;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.btn{
+    margin-top: 20px;
+    color: white;
+    background-color: black;
+    width: 100px;
+    height: 40px;
+}
+
+.section_login{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vw;
+    flex-direction: column;
+}
+
+.user{
+    width: 100px;
+    height: 100px;
+}
+
+p{
+    margin-bottom: 0;
+    width: 170px;
+}
