@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import './styles.css'
 import { AwardIcon } from "lucide-react";
 import axios from "axios";
@@ -20,6 +20,12 @@ const ModalProfessores = ({
     const [email, setEmail] = useState(professorSelecionado?.email || "")
     const [cel, setCel] = useState(professorSelecionado?.cel || "")
     const [ocup, setOcup] = useState(professorSelecionado?.ocup || "")
+    const [image, setImage] = useState(professorSelecionado?.image || "")
+    const [preview, setPreview] = useState(null)
+    const [message, setMessage] = useState('')
+    const imageRef = useRef(null)
+
+    //  -- Pega o token do armazenamento pelo nome dele 'token'
     const token = localStorage.getItem('token')
 
     useEffect(() => {
@@ -30,6 +36,9 @@ const ModalProfessores = ({
             setEmail(professorSelecionado.email || '')
             setCel(professorSelecionado.cel || '')
             setOcup(professorSelecionado.ocup || '')
+            setImage(professorSelecionado.image || '')
+            // Capturar foto
+
         } else {
             setId('')
             setNi('')
@@ -37,17 +46,83 @@ const ModalProfessores = ({
             setEmail('')
             setCel('')
             setOcup('')
+            setImage('')
         }
+
     }, [professorSelecionado])
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
-        const novoProfessor = { ni, nome, email, cel, ocup }
-        if (professorSelecionado) {
-            atualizar({ ...professorSelecionado })
-        } else {
-            criar(novoProfessor)
+        
+        if (!ni || !nome || !email || !cel || !ocup || !(imageRef.current instanceof File)) {
+            setMessage("Preencha todos os campos.")
+            return
+        } 
+
+        const fileExtension = imageRef.current.name.split(".").pop()
+        const newFileName = `${ni}_${nome.split(' ')[0]}.${fileExtension}}`
+        const nameFile = new File([imageRef.current], newFileName, {type: imageRef.current.type})
+
+        const formData = new FormData()
+        formData.append("ni", ni)
+        formData.append("nome", nome)
+        formData.append("email", email)
+        formData.append("cel", cel)
+        formData.append("ocup", ocup)
+        formData.append("image", image)
+
+        try {
+            await axios.post("http://127.0.0.1:8000/api/professores", 
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+            )
+            setMessage("Dados enviada com sucesso.")
+            console.log("Dados enviados com sucesso.")
+            setPreview(null)
+            onClose(true)
+
+        } catch (error) {
+            console.log("Erro ao enviar dados: ", error);
+            setMessage("Dados inválidos.")
         }
+    }
+
+    const deleteFile =  async (fileName) => {
+        if (imageRef) {
+            const response = await axios.delete(`http://127.0.0.1:8000/api/delete/${fileName}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            )
+            console.log("Deletado com sucesso.")
+        }
+    }
+    const handleFileChange = (e) => {
+        if (professorSelecionado) {
+            const fileName = professorSelecionado.image.split("/").pop
+            deleteFile(fileName)
+        }
+
+        const file = e.target.file[0]
+
+        if (!file) return
+        
+        imageRef.current = file
+
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            preview('preview: ', file)
+        }
+
+        reader.readAsDataURL(file)
+        console.log("Preview XXX: ", file);
     }
 
     const newTeacher = async () => {
@@ -73,9 +148,9 @@ const ModalProfessores = ({
         }
     }
 
-    const editTeacher = async () => {
+    const editTeacher = async (id) => {
         try {
-            await axios.put(`http://127.0.0.1:8000/api/professor/${professorSelecionado.id}`,
+            await axios.put(`http://127.0.0.1:8000/api/professor/${id}`,
                 {
                     ni: ni,
                     nome: nome,
@@ -106,7 +181,6 @@ const ModalProfessores = ({
                 <div className="body_modal">
                     <div className="caixa1">
                         <h2>{professorSelecionado ? "Editar" : "Cadastrar"}</h2>
-                        <form onSubmit={handleSubmit}>
                             <input
                                 className="ni_modal"
                                 placeholder="NI"
@@ -142,10 +216,23 @@ const ModalProfessores = ({
                                 value={ocup}
                                 onChange={(e) => setOcup(e.target.value)}
                             />
-                        </form>
                     </div>
-                    <div className="caixa2">
-                        <h1>Foto</h1>
+                    <div className="image1">
+                        <img src={`http://127.0.0.1:8000/api/images/${ni}_${nome.split(" ")[0]}.png`}/>
+                    </div>
+
+                    <div className="image2">
+                        <form onSubmit={handleSubmit}>
+                            {preview && <img src={preview} alt="preview" className="preview"/>}
+                            <input type="file" accept="image/" onChange={handleFileChange} className="fileInput"/> 
+
+                            <button type="submit" className="buttonSave" onClick={(e) => {
+                                e.preventDefault()
+                                professorSelecionado ? editTeacher(professorSelecionado.id) : handleSubmit(e)}}>
+                                    
+                                {professorSelecionado ? "Editar" : "Salvar"}
+                            </button>
+                        </form>
                     </div>
                 </div>
                 <div className="footer_modal">
