@@ -6,6 +6,7 @@ class Professor(models.Model):
     email = models.EmailField(max_length=255)
     ocup = models.CharField(max_length=255)
     cel = models.CharField(max_length=255)
+    image = models.ImageField(upload_to="images/", blank=True, null=True)
 
     def __str__(self):
         return self.ni

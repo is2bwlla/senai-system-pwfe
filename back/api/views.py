@@ -6,6 +6,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
+import os
+from django.conf import settings
 
 # TEACHERS
 
@@ -98,4 +100,16 @@ class SubjectsDetailView(RetrieveUpdateDestroyAPIView):
         instance = self.get_object()
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+@api_view(['Delete'])
+@permission_classes([IsAuthenticated])
+def delete_file(filename):
+    file_path = os.path.join(settings.MEDIA_ROOT, "images", filename)
+
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return Response({"message": "Arquivo deletado com sucesso."}, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
