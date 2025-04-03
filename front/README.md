@@ -1,5 +1,1 @@
-# ESTUDAR:
-
-- useState;
-- useEffect;
-- useRef;
+### Adicionar tailwind e estilizar melhor

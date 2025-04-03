@@ -14,20 +14,24 @@ const ModalProfessores = ({
 
     console.log("Prof Select: ", professorSelecionado)
 
+    // Informações professores
     const [id, setId] = useState(professorSelecionado?.id || "")
     const [ni, setNi] = useState(professorSelecionado?.ni || "")
     const [nome, setNome] = useState(professorSelecionado?.nome || "")
     const [email, setEmail] = useState(professorSelecionado?.email || "")
     const [cel, setCel] = useState(professorSelecionado?.cel || "")
     const [ocup, setOcup] = useState(professorSelecionado?.ocup || "")
+    
+    // Informações das imagens
     const [image, setImage] = useState(professorSelecionado?.image || "")
     const [preview, setPreview] = useState(null)
     const [message, setMessage] = useState('')
     const imageRef = useRef(null)
 
-    //  -- Pega o token do armazenamento pelo nome dele 'token'
+    // Token de autorização para acesso de páginas
     const token = localStorage.getItem('token')
 
+    // Deixa todos os campos vazios quando chama a modal (?)
     useEffect(() => {
         if (professorSelecionado) {
             setId(professorSelecionado.id)
@@ -51,10 +55,11 @@ const ModalProfessores = ({
 
     }, [professorSelecionado])
 
+    // Campos obrigatórios que precisam ser preenchidos
     const handleSubmit = async (e) => {
         e.preventDefault()
         
-        if (!ni || !nome || !email || !cel || !ocup || !(imageRef.current instanceof File)) {
+        if (!ni || !nome || !email || !cel || !ocup) {
             setMessage("Preencha todos os campos.")
             return
         } 
@@ -69,7 +74,7 @@ const ModalProfessores = ({
         formData.append("email", email)
         formData.append("cel", cel)
         formData.append("ocup", ocup)
-        formData.append("image", image)
+        formData.append("foto", nameFile)
 
         try {
             await axios.post("http://127.0.0.1:8000/api/professores", 
@@ -85,10 +90,8 @@ const ModalProfessores = ({
             console.log("Dados enviados com sucesso.")
             setPreview(null)
             onClose(true)
-
         } catch (error) {
             console.log("Erro ao enviar dados: ", error);
-            setMessage("Dados inválidos.")
         }
     }
 
@@ -224,7 +227,7 @@ const ModalProfessores = ({
                     <div className="image2">
                         <form onSubmit={handleSubmit}>
                             {preview && <img src={preview} alt="preview" className="preview"/>}
-                            <input type="file" accept="image/" onChange={handleFileChange} className="fileInput"/> 
+                            <input type="file" accept="image/*" onChange={handleFileChange} className="fileInput"/> 
 
                             <button type="submit" className="buttonSave" onClick={(e) => {
                                 e.preventDefault()
@@ -246,7 +249,6 @@ const ModalProfessores = ({
             </div>
         </div>
     )
-
 }
 
 export default ModalProfessores
